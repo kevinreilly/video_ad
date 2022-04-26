@@ -11,45 +11,73 @@
 		<script>
 			const toggleAD = (toggleButton) => {
 				const video = document.getElementById('the_video');
-				const descriptionTrack = video.textTracks[0];
+				const trackSelect = document.getElementById('track_select');
 
-				const adOff = () => {
-					toggleButton.removeAttribute('selected');
-					descriptionTrack.mode = 'disabled';
-				}
+				const tracks = video.textTracks;
 
-				const adOn = () => {
-					toggleButton.setAttribute('selected', '');
+				let descriptionTracks = [];
 
-					const synth = window.speechSynthesis;
-
-					descriptionTrack.mode = 'showing';
-
-					descriptionTrack.oncuechange = () => {
-						if (descriptionTrack.activeCues.length > 0) {
-							let utterThis = new SpeechSynthesisUtterance(descriptionTrack.activeCues[0].text);
-							utterThis.voice = synth.getVoices()[1];
-
-							video.pause();
-
-							synth.speak(utterThis);
-
-							utterThis.onend = () => video.play();
-						}
+				for (let i = 0; i < tracks.length; i++) {
+					if (tracks[i].kind === 'descriptions') {
+						descriptionTracks.push(tracks[i]);
 					}
 				}
 
-				toggleButton.hasAttribute('selected') ? adOff() : adOn();
+				if (descriptionTracks.length > 0) {
+					let descriptionTrack;
+
+					for (let i = 0; i < descriptionTracks.length; i++) {
+						if (descriptionTracks[i].label === trackSelect.value) {
+							descriptionTrack = descriptionTracks[i];
+						}
+					}
+
+					const adOff = () => {
+						toggleButton.removeAttribute('selected');
+						descriptionTracks.map((track) => {
+							track.mode = 'disabled';
+						});
+					}
+
+					const adOn = () => {
+						toggleButton.setAttribute('selected', '');
+
+						const synth = window.speechSynthesis;
+
+						descriptionTrack.mode = 'showing';
+
+						descriptionTrack.oncuechange = () => {
+							if (descriptionTrack.activeCues.length > 0) {
+								let utterThis = new SpeechSynthesisUtterance(descriptionTrack.activeCues[0].text);
+								utterThis.voice = synth.getVoices()[1];
+
+								video.pause();
+
+								synth.speak(utterThis);
+
+								utterThis.onend = () => video.play();
+							}
+						}
+					}
+
+					toggleButton.hasAttribute('selected') ? adOff() : adOn();
+				}
 			}
 		</script>
 		<video id="the_video" controls>
 			<source src="https://www.w3schools.com/html/mov_bbb.mp4" />
-			<track src="./ad.vtt" label="English" srclang="en" kind="descriptions" />
+			<track src="./captions_en.vtt" label="English" srclang="en" kind="captions" />
+			<track src="./descriptions_en.vtt" label="English" srclang="en" kind="descriptions" />
+			<track src="./descriptions_es.vtt" label="Spanish" srclang="es" kind="descriptions" />
 		</video>
 		<div>
 			<button onclick="toggleAD(this)">
 				AD
 			</button>
+			<select id="track_select">
+				<option value="English" selected>English</option>
+				<option value="Spanish">Spanish</option>
+			</select>
 		</div>
 	</body>
 </html>
