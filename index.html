@@ -1,0 +1,38 @@
+<html>
+	<head></head>
+	<body>
+		<script>
+			const toggleAD = (e) => {
+				e.setAttribute('selected', 'selected');
+				let synth = window.speechSynthesis;
+
+				let video = document.getElementById('the_video');
+				let descriptionTrack = video.textTracks[0];
+
+				descriptionTrack.mode = 'showing';
+
+				descriptionTrack.oncuechange = () => {
+					if (descriptionTrack.activeCues.length > 0) {
+						let utterThis = new SpeechSynthesisUtterance(descriptionTrack.activeCues[0].text);
+						utterThis.voice = synth.getVoices()[1];
+
+						video.pause();
+
+						synth.speak(utterThis);
+
+						utterThis.onend = () => video.play();
+					}
+				}
+			}
+		</script>
+		<video id="the_video" controls>
+			<source src="https://www.w3schools.com/html/mov_bbb.mp4" />
+			<track src="./ad.vtt" label="English" srclang="en" kind="descriptions" />
+		</video>
+		<div>
+			<button onclick="toggleAD(this)">
+				AD
+			</button>
+		</div>
+	</body>
+</html>
