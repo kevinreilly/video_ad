@@ -9,27 +9,37 @@
 	</head>
 	<body>
 		<script>
-			const toggleAD = (e) => {
-				e.setAttribute('selected', 'selected');
-				let synth = window.speechSynthesis;
+			const toggleAD = (toggleButton) => {
+				const video = document.getElementById('the_video');
+				const descriptionTrack = video.textTracks[0];
 
-				let video = document.getElementById('the_video');
-				let descriptionTrack = video.textTracks[0];
+				const adOff = () => {
+					toggleButton.removeAttribute('selected');
+					descriptionTrack.mode = 'disabled';
+				}
 
-				descriptionTrack.mode = 'showing';
+				const adOn = () => {
+					toggleButton.setAttribute('selected', '');
 
-				descriptionTrack.oncuechange = () => {
-					if (descriptionTrack.activeCues.length > 0) {
-						let utterThis = new SpeechSynthesisUtterance(descriptionTrack.activeCues[0].text);
-						utterThis.voice = synth.getVoices()[1];
+					const synth = window.speechSynthesis;
 
-						video.pause();
+					descriptionTrack.mode = 'showing';
 
-						synth.speak(utterThis);
+					descriptionTrack.oncuechange = () => {
+						if (descriptionTrack.activeCues.length > 0) {
+							let utterThis = new SpeechSynthesisUtterance(descriptionTrack.activeCues[0].text);
+							utterThis.voice = synth.getVoices()[1];
 
-						utterThis.onend = () => video.play();
+							video.pause();
+
+							synth.speak(utterThis);
+
+							utterThis.onend = () => video.play();
+						}
 					}
 				}
+
+				toggleButton.hasAttribute('selected') ? adOff() : adOn();
 			}
 		</script>
 		<video id="the_video" controls>
